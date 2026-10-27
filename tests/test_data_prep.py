@@ -5,8 +5,8 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
-import config as cfg  # noqa: E402
-import data_prep as dp  # noqa: E402
+import config as cfg  # noqa: E402 # type: ignore
+import data_prep as dp  # noqa: E402 # type: ignore
 
 
 def test_shape_and_encoding():

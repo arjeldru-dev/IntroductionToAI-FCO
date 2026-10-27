@@ -1,0 +1,4 @@
+data/wdbc.data binary
+data/wdbc.names binary
+data/wdbc.data.sha256 -text
+*.py text eol=lf

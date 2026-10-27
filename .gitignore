@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Pytest / testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Results / outputs (keep directory structure tracked via .gitkeep)
+results/*
+!results/.gitkeep
+
+# LaTeX build artifacts for paper
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.toc
+paper/*.pdf
+
+# Temporary test / diff scratch files
+a.txt
+b.txt
+*.tmp
+
+# IDE / Editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini

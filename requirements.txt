@@ -1,0 +1,12 @@
+# Pinned from `pip freeze` of the environment where the code was actually run (Python 3.12.3).
+# Re-generate on the group's own machine before submission (see README).
+numpy==2.4.4
+scikit-learn==1.8.0
+scipy==1.17.1
+joblib==1.5.3
+threadpoolctl==3.6.0
+pytest==9.1.1
+pluggy==1.7.0
+iniconfig==2.3.1
+packaging==26.0
+colorama==0.4.6; sys_platform == "win32"

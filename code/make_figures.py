@@ -10,6 +10,7 @@ import csv
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import matplotlib
 matplotlib.use("Agg")
@@ -46,8 +47,10 @@ def curves(cv, n1, lam, key):
 
 
 def fig_eta_curves(cv, n1=8, lam=0.0):
-    for key, ylabel, name in (("J", "training objective J", "fig_loss_1.png"),
-                              ("grad_norm", r"$\|\nabla J\|_2$", "fig_gradnorm_2.png")):
+    ref = fr"reference config $n_1$ = {n1}, $\lambda$ = {lam:g} (not the selected config), init seed 0"
+    for key, ylabel, title, legend_loc, name in (
+            ("J", "training objective J", "Training objective", "upper right", "fig_loss_1.png"),
+            ("grad_norm", r"$\|\nabla J\|_2$", "Gradient norm", "empty band", "fig_gradnorm_2.png")):
         fig, ax = plt.subplots(figsize=(6, 4))
         for eta, (x, y) in curves(cv, n1, lam, key).items():
             ax.plot(x, y, label=fr"$\eta$ = {eta:g}")
@@ -56,15 +59,18 @@ def fig_eta_curves(cv, n1=8, lam=0.0):
         ax.set_yscale("log")
         ax.set_xlabel("epoch (full-batch iteration)")
         ax.set_ylabel(ylabel)
-        ax.set_title(fr"Training curves, $n_1$={n1}, $\lambda$={lam:g}, init seed 0")
-        ax.legend()
+        ax.set_title(f"{title}\n{ref}", fontsize=9)
+        if legend_loc == "empty band":  # between the curves and the tolerance line; covers neither
+            ax.legend(loc="center right", bbox_to_anchor=(0.98, 0.30))
+        else:
+            ax.legend(loc=legend_loc)
         save(fig, name)
 
 
 def fig_val_heatmap(summ, sel):
     fig, axes = plt.subplots(1, 3, figsize=(11, 3.6), sharey=True)
     vmin = min(float(r["val_bce_mean"]) for r in summ)
-    vmax = np.percentile([float(r["val_bce_mean"]) for r in summ], 90)
+    vmax = max(float(r["val_bce_mean"]) for r in summ)  # full range: no saturated cells
     im = None
     for ax, eta in zip(axes, cfg.LEARNING_RATES):
         M = np.zeros((len(cfg.HIDDEN_WIDTHS), len(cfg.LAMBDAS)))
@@ -135,22 +141,35 @@ def fig_confusion(preds):
 def fig_roc_pr(preds):
     te = [r for r in preds if r["split"] == "test"]
     y = np.array([int(r["y_true"]) for r in te])
+    prevalence = float(y.mean())
     fig1, a1 = plt.subplots(figsize=(4.8, 4.4)); fig2, a2 = plt.subplots(figsize=(4.8, 4.4))
-    rows = []
+    styles: dict[str, dict[str, Any]] = {
+        "MLP": dict(color="C0", ls="-", lw=3.5, alpha=0.9),
+        "Logistic regression": dict(color="C1", ls=(0, (4, 3)), lw=1.8),
+    }
+    rows, roc_pts, pr_pts = [], {}, {}
     for nm, c in (("MLP", "mlp_p"), ("Logistic regression", "logreg_p")):
         p = np.array([float(r[c]) for r in te])
         fpr, tpr, _ = skm.roc_curve(y, p); pr, rc, _ = skm.precision_recall_curve(y, p)
         auc, ap = skm.roc_auc_score(y, p), skm.average_precision_score(y, p)
-        a1.plot(fpr, tpr, label=f"{nm} (AUC {auc:.4f})"); a2.plot(rc, pr, label=f"{nm} (AP {ap:.4f})")
+        a1.plot(fpr, tpr, label=f"{nm} (AUC {auc:.4f})", **styles[nm])
+        a2.plot(rc, pr, label=f"{nm} (AP {ap:.4f})", **styles[nm])
+        roc_pts[nm], pr_pts[nm] = (fpr, tpr), (rc, pr)
         rows.append({"model": nm, "roc_auc": auc, "average_precision": ap})
-    a1.plot([0, 1], [0, 1], "k--", lw=1); a1.set_xlabel("false positive rate"); a1.set_ylabel("true positive rate")
-    a1.set_title("ROC, test set"); a1.legend(loc="lower right")
-    a2.set_xlabel("recall"); a2.set_ylabel("precision"); a2.set_title("Precision-recall, test set")
-    a2.set_ylim(0.5, 1.02); a2.legend(loc="lower left")
+    same_roc = all(np.array_equal(u, v) for u, v in zip(roc_pts["MLP"], roc_pts["Logistic regression"]))
+    same_pr = all(np.array_equal(u, v) for u, v in zip(pr_pts["MLP"], pr_pts["Logistic regression"]))
+    a1.plot([0, 1], [0, 1], color="k", ls=":", lw=1, label="chance")
+    a1.set_xlabel("false positive rate"); a1.set_ylabel("true positive rate")
+    a1.set_title("ROC, test set" + ("\n(the two curves coincide)" if same_roc else ""), fontsize=10)
+    a1.legend(loc="lower right")
+    a2.axhline(prevalence, color="k", ls=":", lw=1, label=f"prevalence baseline ({prevalence:.3f})")
+    a2.set_xlabel("recall"); a2.set_ylabel("precision"); a2.set_ylim(0, 1.05)
+    a2.set_title("Precision-recall, test set" + ("\n(the two curves coincide)" if same_pr else ""), fontsize=10)
+    a2.legend(loc="lower left")
     save(fig1, "fig_roc_1.png"); save(fig2, "fig_pr_2.png")
     with open(RES / "roc_pr_summary.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
-    print(rows)
+    print(rows, "| curves identical: ROC", same_roc, "PR", same_pr, "| prevalence", round(prevalence, 4))
 
 
 def main() -> None:

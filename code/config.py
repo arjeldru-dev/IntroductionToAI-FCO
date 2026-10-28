@@ -38,5 +38,5 @@ OUTPUT_ACTIVATION: str = "sigmoid"
 LOSS: str = "binary_cross_entropy"
 MAX_EPOCHS: int = 5000  # full-batch: 1 epoch = 1 iteration
 GRAD_TOL: float = 1e-6  # stop when ||grad J||_2 < GRAD_TOL
-INIT_SCALE: float = 0.1  # [ASSUMPTION, not in ledger] "small scale" for random-normal init; biases 0
+INIT_SCALE: float = 0.1  # CONFIRMED: "small scale" for random-normal init; biases 0
 FD_STEP: float = 1e-5  # finite-difference step h (gradient_check.py)

@@ -1,0 +1,3 @@
+model,roc_auc,average_precision
+MLP,1.0,1.0
+Logistic regression,1.0,1.0

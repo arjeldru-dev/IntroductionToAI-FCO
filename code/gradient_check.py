@@ -15,9 +15,9 @@ from typing import Dict
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from config import FD_STEP as H_FD  # noqa: E402
 from mlp import MLP  # noqa: E402
 
-H_FD = 1e-5  # finite-difference step h; do not confuse with hidden width n_1
 GAP_TOL = 1e-6
 
 

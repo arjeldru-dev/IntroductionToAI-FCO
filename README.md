@@ -9,10 +9,11 @@ Repo: https://github.com/arjeldru-dev/IntroductionToAI-FCO.git
 |---|---|
 | `code/config.py` | All parameters (single source of truth; no magic numbers elsewhere) |
 | `code/data_prep.py` | Load, encode (malignant = 1), stratified 70/15/15 split, train-only standardization |
-| `code/mlp.py`, `code/gradient_check.py` | From-scratch MLP and gradient check (Martin) [not yet written] |
+| `code/mlp.py`, `code/gradient_check.py` | From-scratch MLP and gradient check (Martin) |
 | `code/run_experiments.py`, `code/make_figures.py` | Experiments, baselines, figures (Cruz) [not yet written] |
 | `data/wdbc.data`, `data/wdbc.names`, `data/wdbc.data.sha256` | Official UCI files and checksum |
 | `tests/` | `python -m pytest tests -q` |
+| `verification/verify_ch10_example.py` | Independent NumPy check of the Ch 10 Part VIII example (not part of the test suite) |
 | `results/`, `paper/` | Script outputs; LaTeX sections |
 
 ## Setup and run

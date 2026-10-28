@@ -14,10 +14,6 @@ env/
 .coverage
 htmlcov/
 
-# Results / outputs (keep directory structure tracked via .gitkeep)
-results/*
-!results/.gitkeep
-
 # LaTeX build artifacts for paper
 paper/*.aux
 paper/*.bbl

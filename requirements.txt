@@ -10,3 +10,4 @@ pluggy==1.7.0
 iniconfig==2.3.1
 packaging==26.0
 colorama==0.4.6; sys_platform == "win32"
+matplotlib==3.10.8

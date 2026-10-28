@@ -1,0 +1,14 @@
+{
+  "eta": 0.01,
+  "n1": 16,
+  "lambda": 0.01,
+  "criterion": "min mean over seeds 0-9 of validation BCE (no regularizer)",
+  "val_bce_mean": 0.07625909657325466,
+  "val_acc_mean": 0.976470588235294,
+  "runner_up": {
+    "eta": 0.01,
+    "n1": 8,
+    "lambda": 0.01,
+    "val_bce_mean": 0.07829137627168407
+  }
+}

@@ -8,7 +8,7 @@ baseline_logreg_validation.csv.
 
 Selection rule (validation only): minimize MEAN over seeds 0-9 of validation BCE (data term,
 no regularizer, so lambdas are comparable). The final model uses init seed 0 (fixed in advance).
-The test set is read in exactly one place: final_test_evaluation().
+Predictions on the test set are computed in exactly one place: final_test_evaluation().
 """
 from __future__ import annotations
 
@@ -102,7 +102,7 @@ def summarize(runs):
 
 
 def final_test_evaluation(data, sel, grid_runs, data_source):
-    """The ONLY function that touches X_test / y_test."""
+    """The ONLY function that evaluates a model on X_test / y_test (main() reads only the test size and indices)."""
     eta, n1, lam = sel["eta"], sel["n1"], sel["lambda"]
     model, h, dt = train_one(data, eta, n1, lam, FINAL_SEED)
     ref = next(r for r in grid_runs if (r["eta"], r["n1"], r["lambda"], r["seed"]) == (eta, n1, lam, FINAL_SEED))
@@ -126,8 +126,8 @@ def final_test_evaluation(data, sel, grid_runs, data_source):
             # independent cross-check of my metric code against sklearn (same predictions)
             yhat = (np.full(len(y), maj_label) if name == "Majority" else (p >= .5).astype(int))
             assert abs(m["accuracy"] - skm.accuracy_score(y, yhat)) < 1e-12
-            assert abs(m["recall"] - skm.recall_score(y, yhat, zero_division=0)) < 1e-12 or np.isnan(m["recall"])  # pyright: ignore[reportArgumentType]
-            assert abs(m["f1"] - skm.f1_score(y, yhat, zero_division=0)) < 1e-12 or np.isnan(m["f1"])  # pyright: ignore[reportArgumentType]
+            assert abs(m["recall"] - skm.recall_score(y, yhat, zero_division=np.nan)) < 1e-12 or np.isnan(m["recall"])  # type: ignore[arg-type]
+            assert abs(m["f1"] - skm.f1_score(y, yhat, zero_division=0)) < 1e-12 or np.isnan(m["f1"])  # type: ignore[arg-type]
             cm = skm.confusion_matrix(y, yhat, labels=[0, 1])
             assert (cm[1, 1], cm[0, 1], cm[0, 0], cm[1, 0]) == (m["TP"], m["FP"], m["TN"], m["FN"])
             if name != "Majority":

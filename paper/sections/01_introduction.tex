@@ -1,0 +1,22 @@
+\section{Introduction}
+\label{sec:intro}
+
+Breast cancer is a major public-health concern: it caused an estimated 694\,000 deaths worldwide in 2024 and was the most common cancer in women in 164 of 186 countries that year~\cite{who2026}. When a breast mass is found, one way to obtain material for diagnosis is fine-needle aspiration, a minimally invasive diagnostic method~\cite{yu2012}. Telling malignant from benign masses matters because most breast lumps are not cancer, and breast cancers are more likely to be treated successfully when they are small and have not spread to nearby lymph nodes~\cite{who2026}. Interpreting aspirates is not perfectly reproducible between observers: in a retrospective review of 70 breast aspirates read by three experienced cytopathologists, the overall agreement between observers on the five reporting categories was 70.48\%~\cite{boler2022}. This motivates measuring the nuclei quantitatively from digitized images. Street et al.~\cite{street1993} followed this approach: they extracted size, shape and texture features of cell nuclei from digitized aspirate images and classified the samples automatically. The features of 569 such samples are published as the Breast Cancer Wisconsin (Diagnostic) dataset~\cite{wdbc}, which we use.
+
+We use the features here only to study a learning pipeline. The dataset is small, public and well documented, so every step of a learning pipeline can be implemented, run many times and checked. This makes it suitable for an educational study, in which the question is less how high a score can be pushed than how a model is trained, validated and judged honestly.
+
+A multilayer perceptron (MLP) is a relevant model for this task. With no hidden layer and a sigmoid output it reduces to logistic regression, so it contains the standard linear model as a special case; a hidden layer with a nonlinear activation adds the ability to represent nonlinear decision boundaries, and without the nonlinearity the extra layer would add nothing (Section~\ref{sec:prelim-mlp}). The MLP is trained by gradient descent with the gradient computed by backpropagation, whose derivation, implementation and verification are a central part of this paper. Its behavior depends on the learning rate, the width of the hidden layer and the regularization strength, which makes it a good object for studying convergence and for practicing validation-based model selection.
+
+\subsection{Objectives of the Paper}
+\label{sec:objectives}
+
+The paper has four objectives, each matched by a part of Section~\ref{sec:results}.
+\begin{enumerate}[label=\textbf{O\arabic*.}, leftmargin=*]
+  \item Derive backpropagation for a multilayer perceptron with a sigmoid output and binary cross-entropy, implement it from scratch in NumPy, and verify it with a finite-difference gradient check (Sections~\ref{sec:prelim} and~\ref{sec:impl}).
+  \item Study how training depends on the learning rate, the hidden width and the regularization strength, selecting the configuration with validation data only (Section~\ref{sec:results}).
+  \item Compare the selected network with a logistic regression and a majority-class baseline on a held-out test set (Section~\ref{sec:results}).
+  \item Interpret the results and state their limits (Section~\ref{sec:analysis}).
+\end{enumerate}
+
+\paragraph{Scope and limitations.}
+The study uses a single dataset of 569 samples and one fixed split, with no external validation. The network has one hidden layer, and the training is full-batch gradient descent. The model is an educational classifier, not a diagnostic tool, and the paper makes no clinical claim. Section~\ref{sec:prelim} fixes the notation and derives the required results, Section~\ref{sec:methods} describes the model, its implementation, the results and their analysis, and Section~\ref{sec:concl} concludes with possible extensions.

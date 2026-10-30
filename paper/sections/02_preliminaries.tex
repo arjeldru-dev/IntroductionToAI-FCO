@@ -1,0 +1,199 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+This section fixes the notation and states or derives every result used in Section~\ref{sec:methods}. Symbols are plain (non-bold), vectors are column vectors, the example index is the superscript $(r)$, and $\ell$ denotes only the layer index.
+
+\subsection{Supervised binary classification and empirical risk}
+\label{sec:prelim-erm}
+
+A labeled dataset $\mathcal{D}=\{(x^{(r)},y^{(r)})\}_{r=1}^{N}$ consists of feature vectors $x^{(r)}\in\mathbb{R}^{d}$ and labels $y^{(r)}\in\{0,1\}$; in this paper $y=1$ denotes a malignant mass and $y=0$ a benign one. A model with parameter vector $\theta\in\mathbb{R}^{P}$ maps $x$ to $\hat p\in(0,1)$, an estimate of $P(y=1\mid x)$, and a hard label is obtained by comparing $\hat p$ with a threshold. A loss function $\mathcal{L}(y,\hat p)\ge 0$ measures the cost of the prediction $\hat p$ when the label is $y$. The empirical risk is the mean loss on the data,
+\begin{equation}
+  \widehat{R}(\theta)=\frac{1}{N}\sum_{r=1}^{N}\mathcal{L}\bigl(y^{(r)},\hat p^{(r)}\bigr).
+  \label{eq:emprisk}
+\end{equation}
+Training minimizes $\widehat{R}$ plus a regularizer (Section~\ref{sec:prelim-reg}). The quantity of interest, however, is the loss on examples not used for training, which is why the data are split (Section~\ref{sec:prelim-split}).
+
+\subsection{Perceptron and multilayer perceptron}
+\label{sec:prelim-mlp}
+
+A perceptron computes a weighted sum of its inputs and applies a hard threshold,
+\begin{equation}
+  z=Wx+b,\qquad a=\mathbf{1}[z\ge 0],
+  \label{eq:perceptron}
+\end{equation}
+with $W\in\mathbb{R}^{1\times d}$ and $b\in\mathbb{R}$. The threshold function is constant on $z<0$ and on $z>0$, so its derivative is zero wherever it exists; a gradient of a loss with respect to $W$ and $b$ therefore carries no information. Replacing the threshold by a smooth activation function $\phi$ removes this obstacle and allows gradient-based training.
+
+A multilayer perceptron (MLP) with $L$ parameterized layers composes such units. With $a^{[0]}=x$ and $\ell=1,\dots,L$,
+\begin{equation}
+  z^{[\ell]}=W^{[\ell]}a^{[\ell-1]}+b^{[\ell]},\qquad a^{[\ell]}=\phi_\ell\bigl(z^{[\ell]}\bigr),\qquad \hat p=a^{[L]},
+  \label{eq:forward}
+\end{equation}
+where $W^{[\ell]}\in\mathbb{R}^{n_\ell\times n_{\ell-1}}$, $b^{[\ell]}\in\mathbb{R}^{n_\ell}$, $n_0=d$, $n_L=1$ for binary classification, and $\phi_\ell$ acts componentwise. Layer $\ell$ has $n_\ell n_{\ell-1}$ weights and $n_\ell$ biases, so the number of trainable parameters is
+\begin{equation}
+  P=\sum_{\ell=1}^{L} n_\ell\,(n_{\ell-1}+1).
+  \label{eq:nparams}
+\end{equation}
+The nonlinearity of the hidden activations is essential. If $\phi_1$ were the identity, then
+\begin{equation*}
+  W^{[2]}\bigl(W^{[1]}x+b^{[1]}\bigr)+b^{[2]}=\bigl(W^{[2]}W^{[1]}\bigr)x+\bigl(W^{[2]}b^{[1]}+b^{[2]}\bigr)
+\end{equation*}
+would again be an affine function of $x$, and by induction the same holds for any depth; the hidden layer would add nothing to a single affine layer.
+
+\subsection{Activation functions}
+\label{sec:prelim-act}
+
+The logistic sigmoid and the hyperbolic tangent are
+\begin{equation}
+  \sigma(z)=\frac{1}{1+e^{-z}}\in(0,1),\qquad \tanh(z)=\frac{e^{z}-e^{-z}}{e^{z}+e^{-z}}\in(-1,1).
+  \label{eq:activations}
+\end{equation}
+Their derivatives can be written through the function values:
+\begin{equation}
+  \sigma'(z)=\sigma(z)\bigl(1-\sigma(z)\bigr),\qquad \tanh'(z)=1-\tanh^{2}(z).
+  \label{eq:actderiv}
+\end{equation}
+For the sigmoid, $\sigma'(z)=e^{-z}/(1+e^{-z})^{2}=\sigma(z)\cdot e^{-z}/(1+e^{-z})$ and $e^{-z}/(1+e^{-z})=1-\sigma(z)$. For the hyperbolic tangent, the quotient rule applied to $\sinh/\cosh$ gives $(\cosh^{2}z-\sinh^{2}z)/\cosh^{2}z=1-\tanh^{2}z$. Both functions are smooth, so all derivatives used below exist everywhere. Since $\sigma$ takes values in $(0,1)$, it is used at the output layer, $\hat p=\sigma(z^{[L]})$.
+
+\subsection{Binary cross-entropy and the sigmoid output}
+\label{sec:prelim-bce}
+
+If the model states $P(y=1\mid x)=\hat p$, the probability it assigns to the observed label $y\in\{0,1\}$ is $\hat p^{\,y}(1-\hat p)^{1-y}$. The negative logarithm of this probability is the binary cross-entropy (BCE) loss of example $r$,
+\begin{equation}
+  J^{(r)}(\theta)=-\Bigl[y^{(r)}\log\hat p^{(r)}+\bigl(1-y^{(r)}\bigr)\log\bigl(1-\hat p^{(r)}\bigr)\Bigr].
+  \label{eq:bce}
+\end{equation}
+For independent labels the likelihood of the data is the product of these probabilities, so minimizing the mean of~\eqref{eq:bce} is equivalent to maximizing the likelihood. When $\hat p=\sigma(z)$ with $z=z^{[L]}$, the chain rule and~\eqref{eq:actderiv} give
+\begin{equation}
+  \frac{\partial J^{(r)}}{\partial z}
+  =\Bigl(-\frac{y}{\hat p}+\frac{1-y}{1-\hat p}\Bigr)\hat p\,(1-\hat p)
+  =-y\,(1-\hat p)+(1-y)\,\hat p
+  =\hat p-y,
+  \label{eq:sigbce}
+\end{equation}
+where the superscript $(r)$ is dropped on the right. Substituting $\log\sigma(z)=-\log(1+e^{-z})$ and $\log(1-\sigma(z))=-z-\log(1+e^{-z})$ into~\eqref{eq:bce} gives $J^{(r)}=\log(1+e^{-z})+(1-y)z$. Splitting the cases $z\ge 0$ and $z<0$ (for $z<0$ use $\log(1+e^{-z})=-z+\log(1+e^{z})$) yields the form
+\begin{equation}
+  J^{(r)}=\max(z,0)-y\,z+\log\bigl(1+e^{-|z|}\bigr),
+  \label{eq:stablebce}
+\end{equation}
+which evaluates the exponential only at non-positive arguments and never takes the logarithm of zero. It is therefore numerically stable even when $\hat p$ is extremely close to $0$ or $1$.
+
+\subsection{Training objective and regularization}
+\label{sec:prelim-reg}
+
+The training objective is the mean BCE over the $N$ training examples plus a squared Frobenius-norm penalty on the weights,
+\begin{equation}
+  J(\theta)=\frac{1}{N}\sum_{r=1}^{N}J^{(r)}(\theta)+\Omega(\theta),\qquad
+  \Omega(\theta)=\frac{\lambda}{2}\sum_{\ell=1}^{L}\bigl\lVert W^{[\ell]}\bigr\rVert_F^{2},
+  \label{eq:objective}
+\end{equation}
+with regularization strength $\lambda\ge 0$. The biases are not penalized. Because $\lVert W^{[\ell]}\rVert_F^{2}=\sum_{i,j}\bigl(W^{[\ell]}_{ij}\bigr)^{2}$, differentiation entry by entry gives
+\begin{equation}
+  \frac{\partial\Omega}{\partial W^{[\ell]}}=\lambda\,W^{[\ell]},\qquad \frac{\partial\Omega}{\partial b^{[\ell]}}=0 .
+  \label{eq:reggrad}
+\end{equation}
+For $\lambda>0$ the penalty increases $J$ for large weights, so minimizing $J$ trades training fit against weight magnitude. The factor $\tfrac12$ and the normalization by $N$ in~\eqref{eq:objective} are conventions; other implementations may scale $\lambda$ differently, which matters when values of $\lambda$ are compared across software (Section~\ref{sec:model}).
+
+\subsection{Gradient descent and the step size}
+\label{sec:prelim-gd}
+
+Full-batch gradient descent starts from an initial $\theta_0$ and iterates
+\begin{equation}
+  \theta_{k+1}=\theta_k-\eta\,\nabla J(\theta_k),\qquad k=0,1,2,\dots,
+  \label{eq:gd}
+\end{equation}
+with learning rate (step size) $\eta>0$. When every update uses all training examples, one epoch equals one iteration. A first-order Taylor expansion gives $J(\theta_{k+1})=J(\theta_k)-\eta\lVert\nabla J(\theta_k)\rVert_2^{2}+o(\eta)$, so for a nonzero gradient and a sufficiently small $\eta$ each step decreases $J$. A quantitative statement requires an assumption, which we make for the analysis only: $\nabla J$ is $\beta$-Lipschitz on the segment between $\theta_k$ and $\theta_{k+1}$, that is, $\lVert\nabla J(u)-\nabla J(v)\rVert_2\le\beta\lVert u-v\rVert_2$ for all $u,v$ on the segment. We did not verify this assumption for our network, and no value of $\beta$ is estimated or used in the experiments. Writing $\Delta=\theta_{k+1}-\theta_k$,
+\begin{align*}
+  J(\theta_{k+1})-J(\theta_k)-\nabla J(\theta_k)^{\top}\Delta
+  &=\int_0^1\bigl(\nabla J(\theta_k+t\Delta)-\nabla J(\theta_k)\bigr)^{\top}\Delta\,dt\\
+  &\le\int_0^1\beta\,t\,\lVert\Delta\rVert_2^{2}\,dt=\frac{\beta}{2}\lVert\Delta\rVert_2^{2},
+\end{align*}
+by the fundamental theorem of calculus and the Cauchy--Schwarz inequality. Substituting $\Delta=-\eta\nabla J(\theta_k)$ gives
+\begin{equation}
+  J(\theta_{k+1})\le J(\theta_k)-\eta\Bigl(1-\frac{\beta\eta}{2}\Bigr)\bigl\lVert\nabla J(\theta_k)\bigr\rVert_2^{2},
+  \label{eq:descent}
+\end{equation}
+so, under this assumption, the objective decreases whenever $0<\eta<2/\beta$ and the gradient is nonzero. A step size that is too large can therefore increase $J$, while a very small one decreases it slowly. At a stationary point $\nabla J=0$, so the iteration is stopped when
+\begin{equation}
+  \bigl\lVert\nabla J(\theta_k)\bigr\rVert_2<\mathrm{tol}
+  \label{eq:stoprule}
+\end{equation}
+or when a maximum number of iterations is reached, whichever happens first. Stopping by~\eqref{eq:stoprule} indicates an approximately stationary point. For a convex $J$ every stationary point is a global minimum; $J$ is not convex here.
+
+\subsection{Backpropagation}
+\label{sec:prelim-bp}
+
+Backpropagation computes $\nabla J$ for all layers in one backward sweep. Fix one training example $r$ and let $z^{[\ell](r)}$ and $a^{[\ell](r)}$ be its quantities from~\eqref{eq:forward}. Define its per-example error signal in layer $\ell$ as $\varepsilon^{[\ell](r)}=\partial J^{(r)}/\partial z^{[\ell](r)}\in\mathbb{R}^{n_\ell}$, the derivative of the loss of this example alone. The symbol $\delta^{[\ell]}$ is reserved for the error signal of the objective, $\partial J/\partial z^{[\ell]}$, which carries the factor $1/N$; the relation is given in~\eqref{eq:bp-delta} below. Then
+\begin{align}
+  \varepsilon^{[L](r)}&=\hat p^{(r)}-y^{(r)},
+  \label{eq:bp-output}\\
+  \varepsilon^{[\ell](r)}&=\Bigl(\bigl(W^{[\ell+1]}\bigr)^{\top}\varepsilon^{[\ell+1](r)}\Bigr)\odot\phi_\ell'\bigl(z^{[\ell](r)}\bigr),\qquad \ell=L-1,\dots,1,
+  \label{eq:bp-recursion}\\
+  \frac{\partial J}{\partial W^{[\ell]}}&=\frac{1}{N}\sum_{r=1}^{N}\varepsilon^{[\ell](r)}\bigl(a^{[\ell-1](r)}\bigr)^{\top}+\lambda\,W^{[\ell]},\qquad
+  \frac{\partial J}{\partial b^{[\ell]}}=\frac{1}{N}\sum_{r=1}^{N}\varepsilon^{[\ell](r)} .
+  \label{eq:bp-grads}
+\end{align}
+Let $\delta^{[\ell]}\in\mathbb{R}^{n_\ell\times N}$ be the matrix whose column $r$ is $\varepsilon^{[\ell](r)}/N$, and $A^{[\ell]}$ the matrix whose column $r$ is $a^{[\ell](r)}$. Column $r$ of $\delta^{[\ell]}$ is $\partial J/\partial z^{[\ell](r)}$, because $J$ contains $J^{(r)}$ with the weight $1/N$, and~\eqref{eq:bp-output}--\eqref{eq:bp-grads} read
+\begin{equation}
+  \delta^{[L]}=\frac{1}{N}\bigl(\hat p-y\bigr),\qquad
+  \frac{\partial J}{\partial W^{[\ell]}}=\delta^{[\ell]}\bigl(A^{[\ell-1]}\bigr)^{\top}+\lambda\,W^{[\ell]},\qquad
+  \frac{\partial J}{\partial b^{[\ell]}}=\delta^{[\ell]}\mathbf{1}_N,
+  \label{eq:bp-delta}
+\end{equation}
+where $\hat p$ and $y$ are the row vectors over all examples, $\mathbf{1}_N$ is the all-ones vector, and $\delta^{[\ell]}$ obeys the recursion~\eqref{eq:bp-recursion} unchanged. This is the form implemented in Listing~\ref{lst:backward}.
+
+\textit{Derivation.} By~\eqref{eq:sigbce}, $\partial J^{(r)}/\partial z^{[L](r)}=\hat p^{(r)}-y^{(r)}$, which is~\eqref{eq:bp-output}. For $\ell<L$, the component $z^{[\ell](r)}_j$ affects $J^{(r)}$ only through $a^{[\ell](r)}_j=\phi_\ell(z^{[\ell](r)}_j)$, which in turn enters every component $z^{[\ell+1](r)}_k=\sum_{j}W^{[\ell+1]}_{kj}a^{[\ell](r)}_j+b^{[\ell+1]}_k$. The chain rule gives
+\begin{equation*}
+  \varepsilon^{[\ell](r)}_j=\sum_{k=1}^{n_{\ell+1}}\varepsilon^{[\ell+1](r)}_k\,W^{[\ell+1]}_{kj}\,\phi_\ell'\bigl(z^{[\ell](r)}_j\bigr),
+\end{equation*}
+which is~\eqref{eq:bp-recursion} in vector form. Finally, $W^{[\ell]}_{kj}$ and $b^{[\ell]}_k$ affect the data term $\tfrac1N\sum_r J^{(r)}$ of $J$ only through $z^{[\ell](r)}_k$ for each $r$, with $\partial z^{[\ell](r)}_k/\partial W^{[\ell]}_{kj}=a^{[\ell-1](r)}_j$ and $\partial z^{[\ell](r)}_k/\partial b^{[\ell]}_k=1$. Summing over examples and adding~\eqref{eq:reggrad} gives~\eqref{eq:bp-grads}. For a hidden tanh layer, $\phi_\ell'(z^{[\ell]})=1-\bigl(a^{[\ell]}\bigr)^{2}$ by~\eqref{eq:actderiv}, so the forward activations suffice. One forward and one backward sweep thus give the full gradient.
+
+\subsection{Finite-difference gradient check}
+\label{sec:prelim-fd}
+
+An implementation of~\eqref{eq:bp-output}--\eqref{eq:bp-grads} can be tested against the centered difference
+\begin{equation}
+  \frac{J(\theta+h e_i)-J(\theta-h e_i)}{2h}=\frac{\partial J}{\partial\theta_i}+\frac{h^{2}}{6}\,\frac{\partial^{3}J}{\partial\theta_i^{3}}(\xi),
+  \label{eq:fd}
+\end{equation}
+where $e_i$ is the $i$-th unit vector, $h>0$ is the step and $\xi$ lies between $\theta-he_i$ and $\theta+he_i$. Equation~\eqref{eq:fd} follows from the third-order Taylor expansions of $J(\theta\pm he_i)$: the even-order terms cancel in the difference, and the two remainders combine by the intermediate value theorem. The truncation error is therefore $O(h^{2})$; in floating-point arithmetic a rounding error of order $\epsilon/h$ is added, where $\epsilon$ is the machine precision. A maximum absolute gap between the analytic and the finite-difference gradient that is several orders of magnitude below the gradient entries indicates a correct implementation.
+
+\subsection{Evaluation metrics}
+\label{sec:prelim-metrics}
+
+With malignant as the positive class, a set of $N$ hard predictions yields the confusion-matrix counts TP (malignant predicted malignant), FP (benign predicted malignant), TN (benign predicted benign) and FN (malignant predicted benign), with $\mathrm{TP}+\mathrm{FP}+\mathrm{TN}+\mathrm{FN}=N$. The derived metrics are
+\begin{equation}
+  \begin{gathered}
+  \mathrm{Accuracy}=\frac{\mathrm{TP}+\mathrm{TN}}{N},\qquad
+  \mathrm{Precision}=\frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FP}},\\
+  \mathrm{Recall}=\frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FN}},\qquad
+  F_1=\frac{2\,\mathrm{TP}}{2\,\mathrm{TP}+\mathrm{FP}+\mathrm{FN}} .
+  \end{gathered}
+  \label{eq:metrics}
+\end{equation}
+Precision is the fraction of positive predictions that are correct and is undefined when no positive prediction is made ($\mathrm{TP}+\mathrm{FP}=0$). Recall is the fraction of malignant cases that are detected. $F_1$ is the harmonic mean of precision and recall; substituting the two fractions into $2\,\mathrm{Precision}\cdot\mathrm{Recall}/(\mathrm{Precision}+\mathrm{Recall})$ gives the last expression in~\eqref{eq:metrics}, which is defined whenever $\mathrm{TP}+\mathrm{FP}+\mathrm{FN}>0$.
+
+The \emph{log loss} of predicted probabilities on an evaluation set is the mean BCE~\eqref{eq:bce} over that set. Unlike the metrics in~\eqref{eq:metrics}, it uses the probabilities themselves rather than thresholded labels, and it penalizes confident wrong predictions heavily, since $-\log\hat p\to\infty$ as $\hat p\to 0$ for a malignant example (and symmetrically for a benign one).
+
+Varying the threshold $t$ in the rule ``predict malignant if $\hat p\ge t$'' traces the receiver operating characteristic (ROC) curve, the true-positive rate $\mathrm{TP}/(\mathrm{TP}+\mathrm{FN})$ plotted against the false-positive rate $\mathrm{FP}/(\mathrm{FP}+\mathrm{TN})$. The ROC AUC is the area under this curve. Let $N_{+}$ and $N_{-}$ be the numbers of positive and negative examples. As $t$ decreases past the scores, each positive raises the curve by $1/N_{+}$ and each negative moves it right by $1/N_{-}$. The area is the sum, over negatives, of $1/N_{-}$ times the curve height at that negative's horizontal step, and this height is the fraction of positives scored above it (a tie contributes a diagonal segment and hence half). Hence
+\begin{equation}
+  \mathrm{AUC}=\frac{1}{N_{+}N_{-}}\sum_{i:\,y_i=1}\ \sum_{j:\,y_j=0}\Bigl(\mathbf{1}\bigl[\hat p_i>\hat p_j\bigr]+\tfrac12\,\mathbf{1}\bigl[\hat p_i=\hat p_j\bigr]\Bigr).
+  \label{eq:auc}
+\end{equation}
+In particular, $\mathrm{AUC}=1$ exactly when every positive example receives a higher score than every negative example. The AUC thus measures ranking and does not depend on any single threshold. Average precision (AP) summarizes the precision--recall curve. Over the distinct thresholds in decreasing order, with recall $R_n$ and precision $P_n$ at the $n$-th threshold and $R_0=0$, it is
+\begin{equation}
+  \mathrm{AP}=\sum_{n}\bigl(R_n-R_{n-1}\bigr)\,P_n .
+  \label{eq:ap}
+\end{equation}
+If all positives are ranked above all negatives, then $P_n=1$ at every threshold where the recall increases, and $\mathrm{AP}=1$.
+
+\subsection{Data splitting, validation versus test, and leakage}
+\label{sec:prelim-split}
+
+The data are divided into three disjoint parts. The \emph{training} split is used to fit the parameters $\theta$ by minimizing~\eqref{eq:objective}. The \emph{validation} split is used to compare settings that are not learned by gradient descent (hyperparameters such as $\eta$, the hidden width and $\lambda$), and the chosen setting is the one with the best validation score. Because this choice is itself fitted to the validation data, the validation score of the selected setting is optimistically biased. The \emph{test} split is therefore held back until all choices are fixed and is then used to estimate performance on new data. A stratified split keeps the class proportions approximately equal across the three parts.
+
+Data leakage occurs when information from the validation or test examples enters the training procedure or the choice of hyperparameters; the resulting scores then overstate performance on new data. A common source is preprocessing. Features are standardized componentwise as
+\begin{equation}
+  \tilde x_j=\frac{x_j-\mu_{\mathrm{train},j}}{s_{\mathrm{train},j}},\qquad j=1,\dots,d,
+  \label{eq:standardize}
+\end{equation}
+where $\mu_{\mathrm{train},j}$ and $s_{\mathrm{train},j}$ are the mean and the population standard deviation of feature $j$ over the training split only. The same transformation, with the training statistics, is then applied to the validation and test splits. Computing $\mu$ and $s$ on the full dataset would let statistics of the test examples influence the training inputs, which is a form of leakage.

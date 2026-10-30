@@ -1,5 +1,4 @@
 # Pinned from `pip freeze` of the environment where the code was actually run (Python 3.12.3).
-# Re-generate on the group's own machine before submission (see README).
 numpy==2.4.4
 scikit-learn==1.8.0
 scipy==1.17.1

@@ -1,0 +1,165 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{times}
+\usepackage{titlesec}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[pdfpagelabels,plainpages=false]{hyperref}
+\hypersetup{hypertexnames=false}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{indentfirst}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+}
+
+\onehalfspacing
+\setlength{\parindent}{0.5in}
+\setlength{\parskip}{0pt}
+
+\titleformat{\section}
+    {\normalfont\bfseries\large}{\thesection.}{0.5em}{}
+\titleformat{\subsection}
+    {\normalfont\bfseries}{\thesubsection.}{0.5em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{14.5pt}  % fixes fancyhdr warning in the template
+\fancyhead[L]{Neural-Network Classification of Breast FNA Features}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---- Title page metadata (see Conventions & Ledger) ----
+\newcommand{\UniversityName}{Bulacan State University}
+\newcommand{\CollegeName}{College of Science}
+\newcommand{\CourseCode}{MCS 306}
+\newcommand{\CourseDescription}{Introduction to Artificial Intelligence}
+\newcommand{\AcademicYear}{First Semester, Academic Year 2026--2027}
+\newcommand{\StudyTitle}{Neural-Network Classification of Breast Fine-Needle-Aspirate Features: A From-Scratch Multilayer Perceptron on the Wisconsin Diagnostic Dataset}
+\newcommand{\AuthorNames}{Ardiel Drew L. Cristobal, Eunice Angeline Y. Cruz, Kerby C. Denilla, Carl Louise P. Martin, and Yangel Mica P. Nicolas}
+\newcommand{\CourseYearSection}{BSM CS 3A}
+\newcommand{\InstructorName}{Aarhus M. Dela Cruz, LPT, MSc}
+\newcommand{\SubmissionDate}{November 1, 2026}
+
+% Logo file paths
+\newcommand{\BulSULogo}{assets/bulsu.png}
+\newcommand{\COSLogo}{assets/college_of_science.png}
+
+% Visible placeholder marker: every \todo must be gone before submission
+\newcommand{\todo}[1]{{\color{red}\textbf{[TODO: #1]}}}
+\newcommand{\toverify}{{\color{red}\textbf{[TO VERIFY]}}}
+
+% Code listings
+\lstset{basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single, numbers=left, numberstyle=\tiny}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+
+    \vspace*{0.3in}
+
+    \begin{minipage}{0.22\textwidth}
+        \centering
+        \includegraphics[width=0.95\linewidth]{\BulSULogo}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.50\textwidth}
+        \centering
+        {\Large\bfseries \UniversityName\par}
+        \vspace{0.15cm}
+        {\large\bfseries \CollegeName\par}
+        \vspace{0.15cm}
+        {\normalsize \CourseCode: \CourseDescription\par}
+        \vspace{0.15cm}
+        {\normalsize \AcademicYear\par}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.22\textwidth}
+        \centering
+        \includegraphics[width=0.95\linewidth]{\COSLogo}
+    \end{minipage}
+
+    \vspace{1.5in}
+
+    {\Large\bfseries MINI RESEARCH AND EXPOSITION PAPER\par}
+
+    \vspace{0.6in}
+
+    {\Large\bfseries \StudyTitle\par}
+
+    \vspace{0.9in}
+
+    {\large\bfseries Authors\par}
+    \vspace{0.2cm}
+    {\large \AuthorNames\par}
+
+    \vspace{0.6in}
+
+    {\large \CourseYearSection\par}
+
+    \vfill
+
+    {\normalsize Submitted to:\par}
+    \vspace{0.15cm}
+    {\normalsize\bfseries \InstructorName\par}
+
+    \vspace{0.4in}
+
+    {\normalsize \SubmissionDate\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\begin{abstract}
+\noindent This paper studies the classification of breast masses as malignant or benign from 30 numeric features of digitized fine-needle-aspirate images (Breast Cancer Wisconsin (Diagnostic) dataset, 569 examples). We implement a multilayer perceptron with one tanh hidden layer and a sigmoid output from scratch in NumPy, with binary cross-entropy, a weight penalty, backpropagation and full-batch gradient descent. The analytic gradients agree with centered finite differences to within $2.1\times10^{-11}$. With a stratified 70/15/15 split and standardization fitted on the training data only, the learning rate, hidden width and regularization strength $\lambda$ are chosen jointly from a 27-cell grid by the mean validation loss over ten initialization seeds. Without regularization the validation loss rises as the learning rate grows, which is consistent with overfitting. The selected network (learning rate 0.01, 16 hidden units, $\lambda=0.01$) lies on the grid edge on all three axes and stopped at the 5000-epoch cap with a final gradient norm of 0.015658. On the 86 held-out test examples it reaches an accuracy of 0.9884, a precision of 1.0 and a recall of 0.9688, missing one malignant case; its test log loss is 0.0497. Logistic regression makes the same single error (log loss 0.0610), and a majority-class rule reaches an accuracy of 0.6279. No advantage of the multilayer perceptron over logistic regression is observed on this split. The model is educational, not a diagnostic tool.
+
+\noindent\textbf{Keywords:} multilayer perceptron, backpropagation, gradient descent, binary classification, breast cancer diagnosis data
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{sections/01_introduction}
+\input{sections/02_preliminaries}
+\input{sections/03_methods}
+\input{sections/04_conclusion}
+
+\newpage
+\addcontentsline{toc}{section}{References}
+\emergencystretch=3em
+\begin{thebibliography}{99}
+
+\bibitem{boler2022}
+Boler, A. K., Roy, S., Chakraborty, A., \& Bandyopadhyay, A. (2022). Reproducibility of the ``International Academy of Cytology Yokohama System for Reporting Breast Cytology'': A retrospective analysis of 70 cases. \textit{Journal of Cytology, 39}(4), 159--162. \url{https://doi.org/10.4103/joc.joc_203_21}
+
+\bibitem{street1993}
+Street, W. N., Wolberg, W. H., \& Mangasarian, O. L. (1993). Nuclear feature extraction for breast tumor diagnosis. \textit{Proceedings of SPIE, 1905}, 861--870. \url{https://doi.org/10.1117/12.148698}
+
+\bibitem{wdbc}
+Wolberg, W., Mangasarian, O., Street, N., \& Street, W. (1993). \textit{Breast Cancer Wisconsin (Diagnostic)} [Dataset]. UCI Machine Learning Repository. \url{https://doi.org/10.24432/C5DW2B}
+
+\bibitem{who2026}
+World Health Organization. (2026, July 3). \textit{Breast cancer} [Fact sheet]. Retrieved October 30, 2026, from \url{https://www.who.int/news-room/fact-sheets/detail/breast-cancer}
+
+\bibitem{yu2012}
+Yu, Y.-H., Wei, W., \& Liu, J.-L. (2012). Diagnostic value of fine-needle aspiration biopsy for breast mass: A systematic review and meta-analysis. \textit{BMC Cancer, 12}, Article 41. \url{https://doi.org/10.1186/1471-2407-12-41}
+
+\end{thebibliography}
+
+\end{document}

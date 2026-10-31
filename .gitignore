@@ -34,6 +34,7 @@ b.txt
 # IDE / Editor configurations
 .vscode/
 .idea/
+pyrightconfig.json
 *.swp
 *.swo
 
@@ -41,3 +42,4 @@ b.txt
 .DS_Store
 Thumbs.db
 desktop.ini
+paper/commit.tex

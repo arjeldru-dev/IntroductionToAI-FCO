@@ -23,6 +23,10 @@ python code/run_experiments.py             # grid + baselines + ONE test evaluat
 python code/make_figures.py                # figures from results/*.csv
 python code/posthoc_test_spread.py         # optional post-hoc analysis (see below)
 ```
+To build the paper (needs LaTeX), run `paper/build.ps1` (Windows) or `paper/build.sh`. They write
+`paper/commit.tex` from `git rev-parse`, so the commit cited in section 3 is always the one built
+from; a `-dirty` suffix means uncommitted changes.
+
 Python 3.12.3 was used for the delivered run. Outputs land in `results/` and are committed, so
 you can inspect them without re-running.
 

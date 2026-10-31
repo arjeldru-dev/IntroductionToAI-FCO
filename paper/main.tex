@@ -55,6 +55,10 @@
 \newcommand{\BulSULogo}{assets/bulsu.png}
 \newcommand{\COSLogo}{assets/college_of_science.png}
 
+% Commit of the code cited in section 3; build.ps1 / build.sh write commit.tex from git
+\newcommand{\RepoCommit}{the repository HEAD}
+\InputIfFileExists{commit.tex}{}{}
+
 % Code listings
 \lstset{basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single, numbers=left, numberstyle=\tiny}
 

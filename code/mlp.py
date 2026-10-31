@@ -1,19 +1,19 @@
 """From-scratch NumPy multilayer perceptron.
 
-Notation follows the conventions ledger (U-03):
+Notation follows the course conventions:
 W^[l], b^[l], z^[l], a^[l], delta^[l]; a^[0] = x; vectors are columns.
 
 Shapes
 ------
 * ``W[l-1]`` stores W^[l] with shape (n_l, n_{l-1}); ``b[l-1]`` stores b^[l]
-  with shape (n_l, 1).  (Python lists are 0-indexed, ledger layers are 1-indexed.)
+  with shape (n_l, 1).  (Python lists are 0-indexed, layers in the text are 1-indexed.)
 * Internally a batch is a matrix ``A0`` of shape (n_0, N): one example per column.
 * The public convenience methods ``fit``, ``predict_proba``, ``predict`` and
   ``loss`` take ``X`` of shape (N, d) (rows = examples, as in data_prep/sklearn)
   and ``y`` of shape (N,) with values in {0, 1}; they transpose internally.
 
-Objective (U-19, U-20)
-----------------------
+Objective
+---------
 J = (1/N_batch) sum_r BCE^(r) + (lambda/2) sum_l ||W^[l]||_F^2, biases not penalized.
 BCE is computed from the logit z^[L] in a numerically stable form.
 
@@ -213,7 +213,7 @@ class MLP:
         N = y.shape[1]
         delta: List[np.ndarray] = [np.empty((0, 0))] * self.L
         delta[-1] = (cache.a[-1] - y) / N
-        for l in range(self.L - 2, -1, -1):  # layer l+1 in ledger indexing
+        for l in range(self.L - 2, -1, -1):  # layer l+1 in 1-indexed notation
             delta[l] = (self.W[l + 1].T @ delta[l + 1]) * _dphi_from_a(
                 self.hidden_activation, cache.a[l + 1]
             )

@@ -115,7 +115,7 @@ class Standardizer:
         N = y.shape[1]
         delta: List[np.ndarray] = [np.empty((0, 0))] * self.L
         delta[-1] = (cache.a[-1] - y) / N
-        for l in range(self.L - 2, -1, -1):  # layer l+1 in ledger indexing
+        for l in range(self.L - 2, -1, -1):  # layer l+1 in 1-indexed notation
             delta[l] = (self.W[l + 1].T @ delta[l + 1]) * _dphi_from_a(
                 self.hidden_activation, cache.a[l + 1]
             )

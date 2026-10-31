@@ -42,3 +42,4 @@ pyrightconfig.json
 .DS_Store
 Thumbs.db
 desktop.ini
+paper/commit.tex

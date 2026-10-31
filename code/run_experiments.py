@@ -1,4 +1,4 @@
-"""W3 experiments: eta x n_1 x lambda grid over 10 init seeds, validation-only selection,
+"""Experiments: eta x n_1 x lambda grid over 10 init seeds, validation-only selection,
 then ONE test evaluation of the selected MLP and both baselines.
 
 Run:  python code/run_experiments.py

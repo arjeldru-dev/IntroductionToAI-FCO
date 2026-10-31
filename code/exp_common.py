@@ -1,4 +1,4 @@
-"""Shared helpers for W3: data access and metric computation.
+"""Shared helpers for the experiments: data access and metric computation.
 
 get_data() uses the official data/wdbc.data via data_prep.prepare_data() when the file is
 present (checksum verified). If it is absent it falls back to scikit-learn's bundled copy of

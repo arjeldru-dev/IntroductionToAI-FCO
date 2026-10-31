@@ -1,4 +1,4 @@
-"""POST-HOC analysis (requested by the lead after approval): test-set spread of the SELECTED
+"""POST-HOC analysis (run after the main selection was fixed): test-set spread of the SELECTED
 MLP configuration over init seeds 0-9.
 
 This is a SECOND look at the test set (the first is final_test_evaluation() in

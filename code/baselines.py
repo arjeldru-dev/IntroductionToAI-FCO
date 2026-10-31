@@ -1,4 +1,4 @@
-"""Baselines on the IDENTICAL split and scaling as the MLP (U-21).
+"""Baselines on the IDENTICAL split and scaling as the MLP.
 
 1. Majority-class rule: always predict the most frequent TRAIN class. Its probability output
    is the constant TRAIN malignant fraction (used only for log loss).

@@ -1,4 +1,4 @@
-"""Single source of truth for every parameter (ledger v6, CONFIRMED, design frozen U-24).
+"""Single source of truth for every parameter.
 
 No other script may hard-code these values; import them from here.
 """
@@ -19,7 +19,7 @@ _BASE = ("radius", "texture", "perimeter", "area", "smoothness", "compactness",
          "concavity", "concave points", "symmetry", "fractal dimension")
 # UCI column order: 10 means, 10 standard errors, 10 worst values
 FEATURE_NAMES: tuple[str, ...] = tuple(f"{k} {b}" for k in ("mean", "se", "worst") for b in _BASE)
-POSITIVE_LABEL: str = "M"  # malignant -> 1 (U-11)
+POSITIVE_LABEL: str = "M"  # malignant -> 1
 NEGATIVE_LABEL: str = "B"  # benign    -> 0
 
 # ---- Split (stratified 70/15/15) ----
@@ -28,7 +28,7 @@ TRAIN_FRAC: float = 0.70
 VAL_FRAC: float = 0.15
 TEST_FRAC: float = 0.15
 
-# ---- Model / training (ledger Parameters table) ----
+# ---- Model / training ----
 INIT_SEEDS: tuple[int, ...] = tuple(range(10))  # seeds 0-9
 LEARNING_RATES: tuple[float, ...] = (0.01, 0.1, 0.5)  # final eta chosen on validation
 HIDDEN_WIDTHS: tuple[int, ...] = (4, 8, 16)  # n_1; one hidden layer

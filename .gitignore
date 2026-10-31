@@ -34,6 +34,7 @@ b.txt
 # IDE / Editor configurations
 .vscode/
 .idea/
+pyrightconfig.json
 *.swp
 *.swo
 
